@@ -1,0 +1,58 @@
+version: "3"
+
+services:
+  db:
+    image: mysql:8.0
+    hostname: db
+    environment:
+      - MYSQL_ROOT_PASSWORD=Vikas#123
+      - MYSQL_DATABASE=vikas
+      - MYSQL_USER=vikas
+      - MYSQL_PASSWORD=Vikas#123
+    ports:
+      - 3306:3306
+    volumes:
+      - db_data:/var/lib/mysql
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: django.Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    links:
+      - db
+    # networks:
+    #   - front_default
+    volumes:
+      - static_volume:/usr/share/nginx/static
+
+  frontend:
+    container_name: ngixreactapp
+    build:
+      context: ./frontend
+      dockerfile: react.Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - backend
+    links:
+      - backend
+    # networks:
+    #   - mynetwork
+    volumes:
+      - static_volume:/usr/share/nginx/html
+
+volumes:
+  static_volume:
+  db_data:
+
+
+# networks:
+#   mynetwork:
+#     name: mynetwork
